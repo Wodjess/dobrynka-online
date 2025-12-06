@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import ChatMessage from "./ChatMessage";
+import botLogo from "@/assets/bot-logo.png";
 
 interface Message {
   id: number;
@@ -142,8 +143,8 @@ const ChatBot = () => {
         {/* Header */}
         <div className="bg-primary text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <span className="text-lg">🍰</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+              <img src={botLogo} alt="Bot" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="font-semibold text-sm">Добрынинский</h3>
