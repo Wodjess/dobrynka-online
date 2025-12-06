@@ -5,30 +5,44 @@ import { Button } from "@/components/ui/button";
 const WelcomeOverlay = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
-  const [phase, setPhase] = useState<"intro" | "shrinking" | "content">("intro");
+  const [phase, setPhase] = useState<"loading" | "shrinking" | "content">("loading");
+  const [isLogoLoaded, setIsLogoLoaded] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
 
+  // Preload logo and set minimum display time for phase 1
   useEffect(() => {
-    // Phase 1: Show big "Встречайте!" for 1 second
-    const shrinkTimer = setTimeout(() => {
-      setPhase("shrinking");
-    }, 1000);
+    const img = new Image();
+    img.src = botLogo;
+    img.onload = () => setIsLogoLoaded(true);
 
-    // Phase 2: After shrink animation, show content
-    const contentTimer = setTimeout(() => {
-      setPhase("content");
-    }, 1800);
+    // Minimum 0.5s display time for "Встречайте!" even if logo is cached
+    const minTimer = setTimeout(() => setMinTimeElapsed(true), 500);
 
-    // Auto close after 15 seconds
-    const closeTimer = setTimeout(() => {
-      handleClose();
-    }, 15000);
-
-    return () => {
-      clearTimeout(shrinkTimer);
-      clearTimeout(contentTimer);
-      clearTimeout(closeTimer);
-    };
+    return () => clearTimeout(minTimer);
   }, []);
+
+  // Transition to phase 2 after logo loaded AND minimum time elapsed
+  useEffect(() => {
+    if (isLogoLoaded && minTimeElapsed && phase === "loading") {
+      setPhase("shrinking");
+    }
+  }, [isLogoLoaded, minTimeElapsed, phase]);
+
+  // Transition to phase 3 after 0.8s in shrinking phase
+  useEffect(() => {
+    if (phase === "shrinking") {
+      const timer = setTimeout(() => setPhase("content"), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+
+  // 5 second auto-close timer starts ONLY after content phase
+  useEffect(() => {
+    if (phase === "content") {
+      const timer = setTimeout(() => handleClose(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -53,8 +67,8 @@ const WelcomeOverlay = () => {
         )`,
       }}
     >
-      {/* Phase 1: Giant "Встречайте!" in center */}
-      {phase === "intro" && (
+      {/* Phase 1: Giant "Встречайте!" centered while logo loads */}
+      {phase === "loading" && (
         <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-orange animate-scale-in">
           Встречайте!
         </h1>
@@ -73,19 +87,19 @@ const WelcomeOverlay = () => {
           </div>
 
           {/* Text content - aligned with logo height */}
-          <div className="flex flex-col justify-start gap-6 h-48 md:h-64 lg:h-80 py-2">
-            {/* "Встречайте!" - shrinks and stays at top */}
+          <div className="flex flex-col justify-start gap-4 h-48 md:h-64 lg:h-80 py-2">
+            {/* "Встречайте!" - shrinks through phases */}
             <h1
               className={`font-bold text-orange transition-all duration-700 ease-out ${
                 phase === "shrinking" 
-                  ? "text-6xl md:text-8xl lg:text-9xl animate-fade-in" 
+                  ? "text-5xl md:text-6xl lg:text-7xl" 
                   : "text-3xl md:text-4xl lg:text-5xl"
               }`}
             >
               Встречайте!
             </h1>
 
-            {/* Main text and button - appear after shrinking */}
+            {/* Main text and button - appear in phase 3 */}
             <div
               className={`flex flex-col gap-4 transition-all duration-500 ${
                 phase === "content"
