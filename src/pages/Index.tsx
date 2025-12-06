@@ -3,6 +3,7 @@ import HeroBanner from "@/components/HeroBanner";
 import ProductSection from "@/components/ProductSection";
 import CategoryGrid from "@/components/CategoryGrid";
 import Footer from "@/components/Footer";
+import ChatBot from "@/components/chat/ChatBot";
 
 const newYearProducts = [
   {
@@ -153,6 +154,7 @@ const Index = () => {
         />
       </main>
       <Footer />
+      <ChatBot />
     </div>
   );
 };
