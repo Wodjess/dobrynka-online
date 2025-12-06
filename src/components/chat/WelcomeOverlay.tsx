@@ -28,10 +28,10 @@ const WelcomeOverlay = () => {
     }
   }, [isLogoLoaded, minTimeElapsed, phase]);
 
-  // Transition to phase 3 after 1s in shrinking phase (longer for bounce to complete)
+  // Transition to phase 3 after 0.8s in shrinking phase
   useEffect(() => {
     if (phase === "shrinking") {
-      const timer = setTimeout(() => setPhase("content"), 1000);
+      const timer = setTimeout(() => setPhase("content"), 800);
       return () => clearTimeout(timer);
     }
   }, [phase]);
@@ -87,7 +87,7 @@ const WelcomeOverlay = () => {
             marginRight: `${logoMargin}px`,
             transform: isLoadingPhase ? 'scale(0)' : 'scale(1)',
             opacity: isLoadingPhase ? 0 : 1,
-            transition: 'transform 800ms cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 500ms ease-out',
+            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 500ms ease-out',
             willChange: 'transform, opacity',
           }}
         >
@@ -108,19 +108,17 @@ const WelcomeOverlay = () => {
             willChange: 'transform',
           }}
         >
-          {/* "Встречайте!" - uses transform: scale() for smooth GPU-accelerated animation */}
+          {/* "Встречайте!" - single element with smooth size transition */}
           <h1
             className="font-bold text-orange"
             style={{
-              fontSize: 'clamp(3.5rem, 6vw, 5rem)',
-              transform: phase === "loading" 
-                ? 'scale(2.4)' 
+              fontSize: phase === "loading" 
+                ? 'clamp(7rem, 16vw, 12rem)' 
                 : phase === "shrinking" 
-                  ? 'scale(1.6)' 
-                  : 'scale(1)',
-              transformOrigin: 'left top',
-              transition: 'transform 800ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              willChange: 'transform',
+                  ? 'clamp(5rem, 10vw, 8rem)' 
+                  : 'clamp(3.5rem, 6vw, 5rem)',
+              transition: 'font-size 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              willChange: 'font-size',
             }}
           >
             Встречайте!
