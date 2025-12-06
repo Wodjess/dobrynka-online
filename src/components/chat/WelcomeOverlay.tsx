@@ -53,6 +53,8 @@ const WelcomeOverlay = () => {
 
   if (!isVisible) return null;
 
+  const isLoadingPhase = phase === "loading";
+
   return (
     <div
       className={`fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-500 ${
@@ -67,60 +69,65 @@ const WelcomeOverlay = () => {
         )`,
       }}
     >
-      {/* Phase 1: Giant "Встречайте!" centered while logo loads */}
-      {phase === "loading" && (
-        <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-orange animate-scale-in">
-          Встречайте!
-        </h1>
-      )}
+      {/* Single unified layout that animates between phases */}
+      <div className={`flex items-center gap-8 md:gap-12 lg:gap-16 px-4 transition-all duration-700 ease-out ${
+        isLoadingPhase ? "justify-center" : "justify-center"
+      }`}>
+        {/* Logo - hidden in loading phase, appears with animation in shrinking */}
+        <div 
+          className={`w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden shadow-2xl border-8 border-orange flex-shrink-0 transition-all duration-700 ease-out ${
+            isLoadingPhase 
+              ? "opacity-0 scale-50 w-0 h-0 md:w-0 md:h-0 lg:w-0 lg:h-0 border-0" 
+              : "opacity-100 scale-100"
+          }`}
+        >
+          <img
+            src={botLogo}
+            alt="Assistant"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-      {/* Phase 2 & 3: Logo + shrinking text + content */}
-      {(phase === "shrinking" || phase === "content") && (
-        <div className="flex items-center gap-8 md:gap-12 lg:gap-16 px-4">
-          {/* Large Logo */}
-          <div className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden shadow-2xl border-8 border-orange flex-shrink-0 animate-scale-in">
-            <img
-              src={botLogo}
-              alt="Assistant"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Text content - aligned with logo height */}
-          <div className="flex flex-col justify-start gap-4 h-48 md:h-64 lg:h-80 py-2">
-            {/* "Встречайте!" - shrinks through phases */}
-            <h1
-              className={`font-bold text-orange transition-all duration-700 ease-out ${
-                phase === "shrinking" 
+        {/* Text container */}
+        <div className={`flex flex-col transition-all duration-700 ease-out ${
+          isLoadingPhase 
+            ? "items-center justify-center" 
+            : "items-start justify-start gap-4 h-48 md:h-64 lg:h-80 py-2"
+        }`}>
+          {/* "Встречайте!" - single element that animates through all phases */}
+          <h1
+            className={`font-bold text-orange transition-all duration-700 ease-out ${
+              phase === "loading"
+                ? "text-6xl md:text-8xl lg:text-9xl"
+                : phase === "shrinking" 
                   ? "text-5xl md:text-6xl lg:text-7xl" 
                   : "text-3xl md:text-4xl lg:text-5xl"
-              }`}
-            >
-              Встречайте!
-            </h1>
+            }`}
+          >
+            Встречайте!
+          </h1>
 
-            {/* Main text and button - appear in phase 3 */}
-            <div
-              className={`flex flex-col gap-4 transition-all duration-500 ${
-                phase === "content"
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8 pointer-events-none"
-              }`}
+          {/* Main text and button - appear in phase 3 */}
+          <div
+            className={`flex flex-col gap-4 transition-all duration-500 ${
+              phase === "content"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8 pointer-events-none h-0 overflow-hidden"
+            }`}
+          >
+            <p className="text-lg md:text-xl lg:text-2xl text-white font-medium leading-relaxed max-w-md">
+              Первый в мире ассистент, который экономит вам деньги при заказе 😱😱😱
+            </p>
+            
+            <Button
+              onClick={handleClose}
+              className="bg-orange hover:bg-orange-hover text-white px-10 py-4 text-lg font-semibold rounded-full shadow-lg transition-transform hover:scale-105 w-fit"
             >
-              <p className="text-lg md:text-xl lg:text-2xl text-white font-medium leading-relaxed max-w-md">
-                Первый в мире ассистент, который экономит вам деньги при заказе 😱😱😱
-              </p>
-              
-              <Button
-                onClick={handleClose}
-                className="bg-orange hover:bg-orange-hover text-white px-10 py-4 text-lg font-semibold rounded-full shadow-lg transition-transform hover:scale-105 w-fit"
-              >
-                Интересно
-              </Button>
-            </div>
+              Интересно
+            </Button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
