@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Maximize2, Minimize2 } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 
 interface Message {
@@ -13,6 +13,14 @@ interface Message {
     discount?: number;
   }>;
 }
+
+type ChatSize = "small" | "medium" | "large";
+
+const chatSizes: Record<ChatSize, { width: string; height: string }> = {
+  small: { width: "320px", height: "420px" },
+  medium: { width: "380px", height: "520px" },
+  large: { width: "460px", height: "640px" },
+};
 
 const cakeProducts = [
   { name: "Добрынинский птичка", price: 890, image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200", discount: 10 },
@@ -51,7 +59,18 @@ const ChatBot = () => {
   const [inputValue, setInputValue] = useState("");
   const [currentResponseIndex, setCurrentResponseIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [chatSize, setChatSize] = useState<ChatSize>("medium");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const increaseSize = () => {
+    if (chatSize === "small") setChatSize("medium");
+    else if (chatSize === "medium") setChatSize("large");
+  };
+
+  const decreaseSize = () => {
+    if (chatSize === "large") setChatSize("medium");
+    else if (chatSize === "medium") setChatSize("small");
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -132,12 +151,16 @@ const ChatBot = () => {
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-6 right-6 w-[360px] h-[520px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-50 ${
+        className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-50 ${
           isOpen
             ? "scale-100 opacity-100"
             : "scale-0 opacity-0 pointer-events-none"
         }`}
-        style={{ transformOrigin: "bottom right" }}
+        style={{ 
+          transformOrigin: "bottom right",
+          width: chatSizes[chatSize].width,
+          height: chatSizes[chatSize].height,
+        }}
       >
         {/* Header */}
         <div className="bg-primary text-white px-4 py-3 flex items-center justify-between">
@@ -150,12 +173,30 @@ const ChatBot = () => {
               <p className="text-xs text-white/80">Онлайн-помощница</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={decreaseSize}
+              disabled={chatSize === "small"}
+              className="w-8 h-8 rounded-full hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+              title="Уменьшить"
+            >
+              <Minimize2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={increaseSize}
+              disabled={chatSize === "large"}
+              className="w-8 h-8 rounded-full hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+              title="Увеличить"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
