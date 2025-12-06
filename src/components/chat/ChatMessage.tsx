@@ -1,4 +1,5 @@
 import MiniProductCard from "./MiniProductCard";
+import botLogo from "@/assets/bot-logo.png";
 
 interface Product {
   name: string;
@@ -85,8 +86,8 @@ const ChatMessage = ({ text, isBot, products }: ChatMessageProps) => {
       <div className={`max-w-[85%] ${isBot ? 'order-2' : 'order-1'}`}>
         {isBot && (
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">🍰</span>
+            <div className="w-6 h-6 rounded-full overflow-hidden">
+              <img src={botLogo} alt="Bot" className="w-full h-full object-cover" />
             </div>
             <span className="text-xs text-muted-foreground font-medium">Помощница Добрынинского</span>
           </div>
