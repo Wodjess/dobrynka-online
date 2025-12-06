@@ -55,6 +55,10 @@ const WelcomeOverlay = () => {
 
   const isLoadingPhase = phase === "loading";
 
+  // Logo dimensions based on breakpoints (we'll use the base size for calculations)
+  const logoSize = 192; // 12rem = 192px (w-48)
+  const logoMargin = 32; // 2rem = 32px (mr-8)
+
   return (
     <div
       className={`fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-500 ${
@@ -69,15 +73,23 @@ const WelcomeOverlay = () => {
         )`,
       }}
     >
-      {/* Single unified layout that animates between phases */}
-      <div className="flex items-center justify-center px-4">
-        {/* Logo - always in DOM with size 0 initially, grows smoothly */}
+      {/* Fixed-width container that doesn't change size */}
+      <div 
+        className="flex items-center px-4"
+        style={{ width: 'max-content' }}
+      >
+        {/* Logo container - ALWAYS reserves space, uses transform for animation */}
         <div 
-          className={`rounded-full overflow-hidden shadow-2xl flex-shrink-0 transition-all duration-700 ease-out ${
-            isLoadingPhase 
-              ? "w-0 h-0 opacity-0 border-0 mx-0" 
-              : "w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 opacity-100 border-8 border-orange mr-8 md:mr-12 lg:mr-16"
-          }`}
+          className="rounded-full overflow-hidden shadow-2xl flex-shrink-0 border-8 border-orange"
+          style={{
+            width: `${logoSize}px`,
+            height: `${logoSize}px`,
+            marginRight: `${logoMargin}px`,
+            transform: isLoadingPhase ? 'scale(0)' : 'scale(1)',
+            opacity: isLoadingPhase ? 0 : 1,
+            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 500ms ease-out',
+            willChange: 'transform, opacity',
+          }}
         >
           <img
             src={botLogo}
@@ -86,32 +98,41 @@ const WelcomeOverlay = () => {
           />
         </div>
 
-        {/* Text container */}
-        <div className={`flex flex-col transition-all duration-700 ease-out ${
-          isLoadingPhase 
-            ? "items-center justify-center" 
-            : "items-start justify-start gap-4 h-48 md:h-64 lg:h-80 py-2"
-        }`}>
-          {/* "Встречайте!" - single element that animates through all phases */}
+        {/* Text container - uses transform for position animation */}
+        <div 
+          className="flex flex-col items-start justify-start gap-4 py-2"
+          style={{
+            height: `${logoSize}px`,
+            transform: isLoadingPhase ? `translateX(-${(logoSize + logoMargin) / 2}px)` : 'translateX(0)',
+            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+            willChange: 'transform',
+          }}
+        >
+          {/* "Встречайте!" - single element with smooth size transition */}
           <h1
-            className={`font-bold text-orange transition-all duration-700 ease-out ${
-              phase === "loading"
-                ? "text-6xl md:text-8xl lg:text-9xl"
+            className="font-bold text-orange"
+            style={{
+              fontSize: phase === "loading" 
+                ? 'clamp(3.5rem, 8vw, 6rem)' 
                 : phase === "shrinking" 
-                  ? "text-5xl md:text-6xl lg:text-7xl" 
-                  : "text-3xl md:text-4xl lg:text-5xl"
-            }`}
+                  ? 'clamp(2.5rem, 5vw, 4rem)' 
+                  : 'clamp(1.75rem, 3vw, 2.5rem)',
+              transition: 'font-size 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              willChange: 'font-size',
+            }}
           >
             Встречайте!
           </h1>
 
           {/* Main text and button - appear in phase 3 */}
           <div
-            className={`flex flex-col gap-4 transition-all duration-500 ${
-              phase === "content"
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8 pointer-events-none h-0 overflow-hidden"
-            }`}
+            className="flex flex-col gap-4"
+            style={{
+              opacity: phase === "content" ? 1 : 0,
+              transform: phase === "content" ? 'translateY(0)' : 'translateY(1rem)',
+              transition: 'opacity 500ms ease-out, transform 500ms ease-out',
+              pointerEvents: phase === "content" ? 'auto' : 'none',
+            }}
           >
             <p className="text-lg md:text-xl lg:text-2xl text-white font-medium leading-relaxed max-w-md">
               Первый в мире ассистент, который экономит вам деньги при заказе 😱😱😱
