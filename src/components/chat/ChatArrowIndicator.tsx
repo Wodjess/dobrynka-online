@@ -12,11 +12,16 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
   const [currentBlink, setCurrentBlink] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
-  // Start showing after delay
+  // Start showing after delay with smooth fade-in
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-      setOpacity(1);
+      // Small delay to allow browser to render with opacity 0 first
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setOpacity(1);
+        });
+      });
     }, delay);
 
     return () => clearTimeout(timer);
@@ -59,15 +64,15 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
     return () => clearTimeout(startBlinkTimer);
   }, [isVisible, blinkCount, isComplete]);
 
-  if (!isVisible || isComplete) return null;
+  if (isComplete) return null;
 
   return (
     <div
       className="fixed z-40 pointer-events-none"
       style={{
-        bottom: "5rem",
-        right: "0.5rem",
-        opacity,
+        bottom: "4rem",
+        right: "-7rem",
+        opacity: isVisible ? opacity : 0,
         transition: "opacity 500ms ease-in-out",
       }}
     >
