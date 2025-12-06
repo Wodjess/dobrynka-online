@@ -132,7 +132,7 @@ const ChatBot = () => {
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-6 right-6 w-[360px] h-[520px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-50 ${
+        className={`fixed bottom-6 right-6 w-[720px] h-[676px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 z-50 ${
           isOpen
             ? "scale-100 opacity-100"
             : "scale-0 opacity-0 pointer-events-none"
@@ -159,7 +159,7 @@ const ChatBot = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-background">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 bg-background chat-scrollbar">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
