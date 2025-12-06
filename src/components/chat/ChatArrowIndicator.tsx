@@ -65,8 +65,8 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
     <div
       className="fixed z-40 pointer-events-none"
       style={{
-        bottom: "6rem",
-        right: "1.5rem",
+        bottom: "5rem",
+        right: "0.5rem",
         opacity,
         transition: "opacity 500ms ease-in-out",
       }}
@@ -74,9 +74,11 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
       <img 
         src={arrowImage}
         alt=""
-        className="w-20 h-auto"
         style={{
+          width: "25rem",
+          height: "auto",
           transform: "rotate(90deg)",
+          transformOrigin: "center center",
         }}
       />
     </div>
