@@ -4,7 +4,7 @@ import ProductSection from "@/components/ProductSection";
 import CategoryGrid from "@/components/CategoryGrid";
 import Footer from "@/components/Footer";
 import ChatBot from "@/components/chat/ChatBot";
-
+import WelcomeOverlay from "@/components/chat/WelcomeOverlay";
 const newYearProducts = [
   {
     id: 1,
@@ -136,6 +136,7 @@ const discountProducts = [
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <WelcomeOverlay />
       <Header />
       <main>
         <HeroBanner />
