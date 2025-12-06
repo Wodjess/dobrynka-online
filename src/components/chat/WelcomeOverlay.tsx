@@ -28,10 +28,10 @@ const WelcomeOverlay = () => {
     }
   }, [isLogoLoaded, minTimeElapsed, phase]);
 
-  // Transition to phase 3 after 0.8s in shrinking phase
+  // Transition to phase 3 after 1s in shrinking phase (allow bounce to complete)
   useEffect(() => {
     if (phase === "shrinking") {
-      const timer = setTimeout(() => setPhase("content"), 800);
+      const timer = setTimeout(() => setPhase("content"), 1000);
       return () => clearTimeout(timer);
     }
   }, [phase]);
@@ -87,7 +87,7 @@ const WelcomeOverlay = () => {
             marginRight: `${logoMargin}px`,
             transform: isLoadingPhase ? 'scale(0)' : 'scale(1)',
             opacity: isLoadingPhase ? 0 : 1,
-            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 500ms ease-out',
+            transition: 'transform 800ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 500ms ease-out',
             willChange: 'transform, opacity',
           }}
         >
@@ -104,21 +104,23 @@ const WelcomeOverlay = () => {
           style={{
             height: `${logoSize}px`,
             transform: isLoadingPhase ? `translateX(-${(logoSize + logoMargin) / 2}px)` : 'translateX(0)',
-            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transition: 'transform 800ms cubic-bezier(0.34, 1.56, 0.64, 1)',
             willChange: 'transform',
           }}
         >
-          {/* "Встречайте!" - single element with smooth size transition */}
+          {/* "Встречайте!" - uses transform: scale() for smooth GPU-accelerated animation */}
           <h1
             className="font-bold text-orange"
             style={{
-              fontSize: phase === "loading" 
-                ? 'clamp(7rem, 16vw, 12rem)' 
+              fontSize: 'clamp(3.5rem, 6vw, 5rem)', // Fixed base size (phase 3 size)
+              transform: phase === "loading" 
+                ? 'scale(2.4)'  // Large for phase 1
                 : phase === "shrinking" 
-                  ? 'clamp(5rem, 10vw, 8rem)' 
-                  : 'clamp(3.5rem, 6vw, 5rem)',
-              transition: 'font-size 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-              willChange: 'font-size',
+                  ? 'scale(1.6)' // Medium for phase 2
+                  : 'scale(1)',  // Normal for phase 3
+              transformOrigin: 'left top',
+              transition: 'transform 800ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              willChange: 'transform',
             }}
           >
             Встречайте!
