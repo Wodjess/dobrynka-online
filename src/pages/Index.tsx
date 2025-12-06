@@ -5,6 +5,7 @@ import CategoryGrid from "@/components/CategoryGrid";
 import Footer from "@/components/Footer";
 import ChatBot from "@/components/chat/ChatBot";
 import WelcomeOverlay from "@/components/chat/WelcomeOverlay";
+import ChatArrowIndicator from "@/components/chat/ChatArrowIndicator";
 const newYearProducts = [
   {
     id: 1,
@@ -156,6 +157,7 @@ const Index = () => {
       </main>
       <Footer />
       <ChatBot />
+      <ChatArrowIndicator delay={10000} blinkCount={5} />
     </div>
   );
 };
