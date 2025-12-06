@@ -171,4 +171,27 @@
       opacity: 1;
     }
   }
+
+  /* Custom chat scrollbar */
+  .chat-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(20 90% 52%) transparent;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(20 90% 52% / 0.4);
+    border-radius: 4px;
+  }
+
+  .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(20 90% 52% / 0.7);
+  }
 }
