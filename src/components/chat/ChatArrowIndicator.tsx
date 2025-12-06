@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowDownRight } from "lucide-react";
+import arrowImage from "@/assets/arrow-indicator.png";
 
 interface ChatArrowIndicatorProps {
   delay?: number; // Delay before starting (ms)
@@ -65,16 +65,19 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
     <div
       className="fixed z-40 pointer-events-none"
       style={{
-        bottom: "5.5rem",
-        right: "5.5rem",
+        bottom: "6rem",
+        right: "1.5rem",
         opacity,
         transition: "opacity 500ms ease-in-out",
       }}
     >
-      <ArrowDownRight 
-        className="text-gray-800" 
-        size={48} 
-        strokeWidth={2.5}
+      <img 
+        src={arrowImage}
+        alt=""
+        className="w-20 h-auto"
+        style={{
+          transform: "rotate(90deg)",
+        }}
       />
     </div>
   );
