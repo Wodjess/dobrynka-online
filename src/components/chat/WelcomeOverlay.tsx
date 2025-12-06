@@ -55,9 +55,9 @@ const WelcomeOverlay = () => {
 
   const isLoadingPhase = phase === "loading";
 
-  // Logo dimensions - 2x scale
-  const logoSize = 384; // 24rem = 384px
-  const logoMargin = 64; // 4rem = 64px
+  // Logo dimensions based on breakpoints (we'll use the base size for calculations)
+  const logoSize = 192; // 12rem = 192px (w-48)
+  const logoMargin = 32; // 2rem = 32px (mr-8)
 
   return (
     <div
@@ -113,10 +113,10 @@ const WelcomeOverlay = () => {
             className="font-bold text-orange"
             style={{
               fontSize: phase === "loading" 
-                ? 'clamp(7rem, 16vw, 12rem)' 
+                ? 'clamp(3.5rem, 8vw, 6rem)' 
                 : phase === "shrinking" 
-                  ? 'clamp(5rem, 10vw, 8rem)' 
-                  : 'clamp(3.5rem, 6vw, 5rem)',
+                  ? 'clamp(2.5rem, 5vw, 4rem)' 
+                  : 'clamp(1.75rem, 3vw, 2.5rem)',
               transition: 'font-size 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
               willChange: 'font-size',
             }}
@@ -134,13 +134,13 @@ const WelcomeOverlay = () => {
               pointerEvents: phase === "content" ? 'auto' : 'none',
             }}
           >
-            <p className="text-2xl md:text-3xl lg:text-4xl text-white font-medium leading-relaxed max-w-2xl">
+            <p className="text-lg md:text-xl lg:text-2xl text-white font-medium leading-relaxed max-w-md">
               Первый в мире ассистент, который экономит вам деньги при заказе 😱😱😱
             </p>
             
             <Button
               onClick={handleClose}
-              className="bg-orange hover:bg-orange-hover text-white px-16 py-6 text-2xl font-semibold rounded-full shadow-lg transition-transform hover:scale-105 w-fit"
+              className="bg-orange hover:bg-orange-hover text-white px-10 py-4 text-lg font-semibold rounded-full shadow-lg transition-transform hover:scale-105 w-fit"
             >
               Интересно
             </Button>
