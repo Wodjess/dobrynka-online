@@ -70,15 +70,13 @@ const WelcomeOverlay = () => {
       }}
     >
       {/* Single unified layout that animates between phases */}
-      <div className={`flex items-center gap-8 md:gap-12 lg:gap-16 px-4 transition-all duration-700 ease-out ${
-        isLoadingPhase ? "justify-center" : "justify-center"
-      }`}>
-        {/* Logo - hidden in loading phase, appears with animation in shrinking */}
+      <div className="flex items-center justify-center px-4">
+        {/* Logo - always in DOM with size 0 initially, grows smoothly */}
         <div 
-          className={`w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden shadow-2xl border-8 border-orange flex-shrink-0 transition-all duration-700 ease-out ${
+          className={`rounded-full overflow-hidden shadow-2xl flex-shrink-0 transition-all duration-700 ease-out ${
             isLoadingPhase 
-              ? "opacity-0 scale-50 w-0 h-0 md:w-0 md:h-0 lg:w-0 lg:h-0 border-0" 
-              : "opacity-100 scale-100"
+              ? "w-0 h-0 opacity-0 border-0 mx-0" 
+              : "w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 opacity-100 border-8 border-orange mr-8 md:mr-12 lg:mr-16"
           }`}
         >
           <img
