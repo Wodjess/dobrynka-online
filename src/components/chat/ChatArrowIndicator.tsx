@@ -70,8 +70,8 @@ const ChatArrowIndicator = ({ delay = 4000, blinkCount = 5 }: ChatArrowIndicator
     <div
       className="fixed z-40 pointer-events-none"
       style={{
-        bottom: "4rem",
-        right: "1rem",
+        bottom: "20rem",
+        right: "-10rem",
         opacity: isVisible ? opacity : 0,
         transition: "opacity 500ms ease-in-out",
       }}
