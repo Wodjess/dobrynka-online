@@ -2,56 +2,27 @@ import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import botLogo from "@/assets/bot-logo.png";
+import {
+  sendChatMessage,
+  saveChatHistory,
+  loadChatHistory,
+  transformApiProducts,
+  getUserId,
+  type ChatMessage as ChatMessageType,
+} from "@/lib/chatApi";
 
-interface Message {
-  id: number;
-  text: string;
-  isBot: boolean;
-  products?: Array<{
-    name: string;
-    price: number;
-    image: string;
-    discount?: number;
-  }>;
-}
-
-const cakeProducts = [
-  { name: "Добрынинский птичка", price: 890, image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200", discount: 10 },
-  { name: "Торт Наполеон", price: 1250, image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=200" },
-  { name: "Медовик классический", price: 980, image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=200" },
-  { name: "Прага шоколадная", price: 1150, image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=200", discount: 15 },
-];
-
-const juiceProducts = [
-  { name: "Сок яблочный", price: 189, image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200", discount: 20 },
-  { name: "Сок апельсиновый", price: 210, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=200" },
-  { name: "Морс ягодный", price: 175, image: "https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=200" },
-  { name: "Компот домашний", price: 145, image: "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=200", discount: 10 },
-];
-
-const botResponses: { text: string; products?: typeof cakeProducts }[] = [
-  {
-    text: "Привет, хочешь `СКИДКУ`?) Сделай заказ тут. Буду рада помочь! 😊",
-  },
-  {
-    text: "Рада буду помочь, однако перед тем, чтобы предложить `хороший торт`, сначала я должна узнать:\n1) К какому празднику тебе нужен торт?\n2) Есть ли непереносимость лактозы, сахарный диабет или другие непереносимости?\n3) Сколько человек будет на празднике?",
-  },
-  {
-    text: "Поняла! Я нашла для вас товар `Добрынинский птичка` и пару других тортов, которые вас могли бы заинтересовать. Кстати, если хотите скидку, напишите `хочу скидку`)",
-    products: cakeProducts,
-  },
-  {
-    text: "Хорошо, если вы хотите скидку, то я вам предлагаю взять по скидке еще товар для торта. Например: `Сок`, он отлично дополнит праздничную атмосферу 🎉",
-    products: juiceProducts,
-  },
-];
+const WELCOME_MESSAGE: ChatMessageType = {
+  id: 0,
+  text: "Привет, хочешь `СКИДКУ`?) Сделай заказ тут. Буду рада помочь! 😊",
+  isBot: true,
+};
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [currentResponseIndex, setCurrentResponseIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -62,53 +33,70 @@ const ChatBot = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load chat history on mount
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      // Send first bot message after opening
+    const savedMessages = loadChatHistory();
+    if (savedMessages.length > 0) {
+      setMessages(savedMessages);
+      setIsInitialized(true);
+    }
+    // Initialize user ID cookie
+    getUserId();
+  }, []);
+
+  // Save chat history whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveChatHistory(messages);
+    }
+  }, [messages]);
+
+  // Send welcome message when chat opens for first time
+  useEffect(() => {
+    if (isOpen && messages.length === 0 && !isInitialized) {
       setTimeout(() => {
-        addBotMessage(0);
+        setMessages([{ ...WELCOME_MESSAGE, id: Date.now() }]);
+        setIsInitialized(true);
       }, 500);
     }
-  }, [isOpen]);
+  }, [isOpen, messages.length, isInitialized]);
 
-  const addBotMessage = (index: number) => {
-    if (index >= botResponses.length) return;
-    
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      const response = botResponses[index];
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: response.text,
-          isBot: true,
-          products: response.products,
-        },
-      ]);
-      setCurrentResponseIndex(index + 1);
-      setIsTyping(false);
-    }, 1000 + Math.random() * 500);
-  };
+  const handleSend = async () => {
+    if (!inputValue.trim() || isTyping) return;
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+    const userMessage: ChatMessageType = {
+      id: Date.now(),
+      text: inputValue,
+      isBot: false,
+    };
 
-    // Add user message
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        text: inputValue,
-        isBot: false,
-      },
-    ]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    setIsTyping(true);
 
-    // Send next bot response
-    if (currentResponseIndex < botResponses.length) {
-      addBotMessage(currentResponseIndex);
+    try {
+      const response = await sendChatMessage(inputValue);
+
+      const botMessage: ChatMessageType = {
+        id: Date.now() + 1,
+        text: response.Message,
+        isBot: true,
+        products: transformApiProducts(response.Items, response.IsSale),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Chat API error:", error);
+      
+      // Show error message
+      const errorMessage: ChatMessageType = {
+        id: Date.now() + 1,
+        text: "Извините, произошла ошибка. Попробуйте еще раз позже.",
+        isBot: true,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -196,10 +184,11 @@ const ChatBot = () => {
               onKeyPress={handleKeyPress}
               placeholder="Напишите сообщение..."
               className="flex-1 px-4 py-2.5 bg-muted rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+              disabled={isTyping}
             />
             <button
               onClick={handleSend}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isTyping}
               className="w-10 h-10 bg-primary hover:bg-primary-hover disabled:bg-primary/50 text-white rounded-full flex items-center justify-center transition-colors"
             >
               <Send className="w-4 h-4" />

@@ -5,6 +5,7 @@ interface Product {
   name: string;
   price: number;
   image: string;
+  url?: string;
   discount?: number;
 }
 
@@ -115,6 +116,7 @@ const ChatMessage = ({ text, isBot, products }: ChatMessageProps) => {
                   name={product.name}
                   price={product.price}
                   image={product.image}
+                  url={product.url}
                   discount={product.discount}
                 />
               ))}
