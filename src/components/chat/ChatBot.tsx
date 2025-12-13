@@ -6,7 +6,7 @@ import {
   sendChatMessage,
   saveChatHistory,
   loadChatHistory,
-  transformApiProductsAsync,
+  transformApiProducts,
   getUserId,
   type ChatMessage as ChatMessageType,
 } from "@/lib/chatApi";
@@ -76,15 +76,12 @@ const ChatBot = () => {
 
     try {
       const response = await sendChatMessage(inputValue);
-      
-      // Fetch product images asynchronously
-      const products = await transformApiProductsAsync(response.Items, response.IsSale);
 
       const botMessage: ChatMessageType = {
         id: Date.now() + 1,
         text: response.Message,
         isBot: true,
-        products,
+        products: transformApiProducts(response.Items, response.IsSale),
       };
 
       setMessages((prev) => [...prev, botMessage]);

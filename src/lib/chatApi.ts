@@ -55,17 +55,13 @@ export function getUserId(): number {
   return newId;
 }
 
-// CORS proxy for fetching external pages
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
-
 // Extract product image from product page URL
 export async function fetchProductImage(productUrl: string): Promise<string> {
   try {
-    const proxyUrl = CORS_PROXY + encodeURIComponent(productUrl);
-    const response = await fetch(proxyUrl);
+    const response = await fetch(productUrl);
     const html = await response.text();
     
-    // Extract image from fancybox-prev link's img src
+    // Extract image from fancybox-prev link's img src or href
     // Pattern: <a href="..." class="fancybox-prev"><img src="...">
     const fancyboxMatch = html.match(/class="fancybox-prev"[^>]*><img[^>]*src="([^"]+)"/i);
     if (fancyboxMatch && fancyboxMatch[1]) {
@@ -80,8 +76,8 @@ export async function fetchProductImage(productUrl: string): Promise<string> {
     
     // Fallback placeholder
     return "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200";
-  } catch (error) {
-    console.error("Error fetching product image:", error);
+  } catch {
+    // Return placeholder on error (CORS issues expected)
     return "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200";
   }
 }
@@ -131,30 +127,7 @@ export function clearChatHistory(): void {
   localStorage.removeItem(CHAT_HISTORY_KEY);
 }
 
-// Transform API response to chat message format (async to fetch images)
-export async function transformApiProductsAsync(
-  items: ApiProduct[] | null,
-  isSale: boolean
-): Promise<ChatMessage["products"]> {
-  if (!items || items.length === 0) return undefined;
-  
-  const productsWithImages = await Promise.all(
-    items.map(async (item) => {
-      const image = await fetchProductImage(item.ItemUrl);
-      return {
-        name: item.ItemName,
-        price: parseFloat(item.ItemPrice) || 0,
-        image,
-        url: item.ItemUrl,
-        discount: isSale ? 5 : undefined,
-      };
-    })
-  );
-  
-  return productsWithImages;
-}
-
-// Sync version for backwards compatibility (uses placeholder)
+// Transform API response to chat message format
 export function transformApiProducts(
   items: ApiProduct[] | null,
   isSale: boolean
@@ -163,8 +136,8 @@ export function transformApiProducts(
   
   return items.map((item) => ({
     name: item.ItemName,
-    price: parseFloat(item.ItemPrice) || 0,
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200",
+    price: parseFloat(item.ItemPrice),
+    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200", // Placeholder, will be replaced
     url: item.ItemUrl,
     discount: isSale ? 5 : undefined,
   }));
