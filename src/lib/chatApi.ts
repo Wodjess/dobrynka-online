@@ -58,20 +58,20 @@ export function getUserId(): number {
 // Extract product image from product page URL
 export async function fetchProductImage(productUrl: string): Promise<string> {
   try {
-    // Use a CORS proxy or fetch directly if same-origin
     const response = await fetch(productUrl);
     const html = await response.text();
     
-    // Extract image from product-slider__labels background-image
-    const match = html.match(/product-slider__labels[^>]*style="[^"]*background-image:\s*url\(['"]?([^'")\s]+)['"]?\)/i);
-    if (match && match[1]) {
-      const imagePath = match[1];
-      // Make absolute URL if relative
-      if (imagePath.startsWith("/")) {
-        const url = new URL(productUrl);
-        return `${url.origin}${imagePath}`;
-      }
-      return imagePath;
+    // Extract image from fancybox-prev link's img src or href
+    // Pattern: <a href="..." class="fancybox-prev"><img src="...">
+    const fancyboxMatch = html.match(/class="fancybox-prev"[^>]*><img[^>]*src="([^"]+)"/i);
+    if (fancyboxMatch && fancyboxMatch[1]) {
+      return fancyboxMatch[1];
+    }
+    
+    // Alternative: get href from fancybox-prev link
+    const hrefMatch = html.match(/<a[^>]*href="([^"]+)"[^>]*class="fancybox-prev"/i);
+    if (hrefMatch && hrefMatch[1]) {
+      return hrefMatch[1];
     }
     
     // Fallback placeholder
