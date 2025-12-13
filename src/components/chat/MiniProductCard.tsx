@@ -36,18 +36,24 @@ const MiniProductCard = ({ name, price, image, url, discount }: MiniProductCardP
           {name}
         </h4>
         <div className="flex items-center gap-1 flex-wrap">
-          {discount ? (
-            <>
-              <span className="text-[10px] text-muted-foreground line-through">
+          {price > 0 ? (
+            discount ? (
+              <>
+                <span className="text-[10px] text-muted-foreground line-through">
+                  {price} ₽
+                </span>
+                <span className="text-xs font-bold text-primary">
+                  {discountedPrice} ₽
+                </span>
+              </>
+            ) : (
+              <span className="text-xs font-bold text-primary">
                 {price} ₽
               </span>
-              <span className="text-xs font-bold text-primary">
-                {discountedPrice} ₽
-              </span>
-            </>
+            )
           ) : (
-            <span className="text-xs font-bold text-primary">
-              {price} ₽
+            <span className="text-xs text-muted-foreground">
+              Цена по запросу
             </span>
           )}
         </div>
