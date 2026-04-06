@@ -1,73 +1,92 @@
-# Welcome to your Lovable project
+# LLM_GPU — Custom Large Language Model from Scratch
 
-## Project info
+> A transformer-based language model built entirely from scratch using PyTorch — custom tokenizer, causal self-attention, multi-GPU training, and interactive chat inference.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Overview
 
-## How can I edit this code?
+This project implements a **GPT-style language model** from the ground up, without relying on HuggingFace or other high-level ML frameworks. Everything — from byte-pair-style tokenization to distributed training — is implemented manually for full control and deep understanding.
 
-There are several ways of editing your application.
+## Architecture
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+┌──────────────┐     ┌──────────────────┐     ┌───────────────┐
+│  Raw Text    │────▶│  Custom Tokenizer │────▶│  Training     │
+│  (Messages)  │     │  (BPE-style)      │     │  Pipeline     │
+└──────────────┘     └──────────────────┘     └───────┬───────┘
+                                                       │
+                                                       ▼
+                     ┌──────────────────┐     ┌───────────────┐
+                     │  Interactive     │◀────│  GPT Model    │
+                     │  Chat Interface  │     │  (Transformer) │
+                     └──────────────────┘     └───────────────┘
 ```
 
-**Edit a file directly in GitHub**
+## Model Architecture
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Component | Details |
+|-----------|---------|
+| **Attention** | Multi-head causal self-attention with Flash Attention support |
+| **Blocks** | Pre-LayerNorm transformer blocks with residual connections |
+| **Tokenizer** | Custom vocabulary builder with special tokens (context/response markers) |
+| **Training** | Distributed Data Parallel (DDP), cosine warmup scheduler, gradient clipping |
+| **Inference** | Top-k sampling, temperature control, greedy decoding |
 
-**Use GitHub Codespaces**
+## Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+├── config/              — Model and data configuration (dataclasses)
+│   └── model_config.py
+├── data/                — Custom tokenizer and dataset pipeline
+│   └── dataset.py
+├── model/               — Transformer architecture
+│   ├── attention.py     — CausalSelfAttention + MLP
+│   ├── transformer.py   — TransformerBlock
+│   └── gpt.py          — GPTModel + generation + checkpointing
+├── training/            — Training loop with DDP support
+│   └── trainer.py
+├── inference/           — Interactive chat interface
+│   └── chat.py
+├── utils/               — Google Colab/Drive utilities
+│   └── colab_setup.py
+├── examples/            — Usage examples
+│   └── usage.py
+├── notebooks/           — Original Jupyter notebook
+│   └── LLM_GPU.ipynb
+├── main.py             — CLI entrypoint
+└── requirements.txt
+```
 
-## What technologies are used for this project?
+## Tech Stack
 
-This project is built with:
+- **Framework:** PyTorch 2.0+
+- **Training:** Multi-GPU via `torchrun` (DistributedDataParallel)
+- **Attention:** Flash Attention (PyTorch SDPA)
+- **Platform:** CUDA GPUs, Google Colab compatible
+- **Language:** Python 3.10+
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Quick Start
 
-## How can I deploy this project?
+### Single GPU Training
+```bash
+python main.py train --messages data.txt --out-dir checkpoints/ --n-layer 20 --n-head 16 --n-embd 1024
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Multi-GPU Training
+```bash
+torchrun --nproc_per_node=4 main.py train --messages data.txt --out-dir checkpoints/
+```
 
-## Can I connect a custom domain to my Lovable project?
+### Interactive Chat
+```bash
+python main.py chat --checkpoint checkpoints/checkpoint_final.pt
+```
 
-Yes, you can!
+## Key Features
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **100% from scratch** — no HuggingFace, no pre-trained weights
+- **Custom tokenizer** with configurable vocabulary size
+- **Multi-GPU distributed training** with automatic scaling
+- **Conversation-aware** — supports multi-turn chat with history
+- **Checkpoint system** — save/resume training at any point
+- **Configurable architecture** — adjust layers, heads, embedding size
+- **Google Colab ready** — with Drive integration for persistent storage
